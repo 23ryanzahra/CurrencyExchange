@@ -5,7 +5,7 @@ namespace CurrencyExchange.DataModels
 {
     public class Client
     {
-        public Client( string? firstName = null, string? lastName = null)
+        public Client(string? firstName = null, string? lastName = null)
         {
             FirstName = firstName ?? string.Empty;
             LastName = lastName ?? string.Empty;

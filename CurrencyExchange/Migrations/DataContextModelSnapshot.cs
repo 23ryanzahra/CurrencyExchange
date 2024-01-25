@@ -43,42 +43,6 @@ namespace CurrencyExchange.Migrations
                     b.ToTable("Clients");
                 });
 
-            modelBuilder.Entity("CurrencyExchange.DataModels.ExchangeRate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BaseCurrency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ExchangeCurrency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("LastUpdatedUTC")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Rate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RateProvider")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BaseCurrency");
-
-                    b.HasIndex("ExchangeCurrency");
-
-                    b.HasIndex("LastUpdatedUTC");
-
-                    b.ToTable("ExchangeRates");
-                });
-
             modelBuilder.Entity("CurrencyExchange.DataModels.Trade", b =>
                 {
                     b.Property<int>("Id")
@@ -87,20 +51,17 @@ namespace CurrencyExchange.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("BaseCurrencyAmount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("BaseCurrencyAmount")
+                        .HasColumnType("float");
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("CurrentRate")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("CurrentRate")
+                        .HasColumnType("float");
 
-                    b.Property<int>("ExchangeRateId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("ExchangedCurrencyAmount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("ExchangedCurrencyAmount")
+                        .HasColumnType("float");
 
                     b.Property<DateTime>("TimestampUTC")
                         .HasColumnType("datetime2");
@@ -108,8 +69,6 @@ namespace CurrencyExchange.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
-
-                    b.HasIndex("ExchangeRateId");
 
                     b.HasIndex("TimestampUTC");
 
@@ -124,15 +83,7 @@ namespace CurrencyExchange.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CurrencyExchange.DataModels.ExchangeRate", "ExchangeRate")
-                        .WithMany()
-                        .HasForeignKey("ExchangeRateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Client");
-
-                    b.Navigation("ExchangeRate");
                 });
 #pragma warning restore 612, 618
         }

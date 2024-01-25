@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CurrencyExchange.Classes;
 
 namespace CurrencyExchange.DataModels
 {
@@ -12,16 +13,12 @@ namespace CurrencyExchange.DataModels
         public int ClientId { get; set; }
         public Client Client { get; set; }
 
-
-        public int ExchangeRateId { get; set; }
-        public ExchangeRate ExchangeRate { get; set; }
-
         public DateTime TimestampUTC { get; set; }
 
-        public decimal BaseCurrencyAmount { get; set; }
+        public double BaseCurrencyAmount { get; set; }
 
-        public decimal ExchangedCurrencyAmount { get; set; }
+        public double ExchangedCurrencyAmount { get; set; }
 
-        public decimal CurrentRate { get; set; }
+        public double CurrentRate { get; set; }
     }
 }
