@@ -1,12 +1,9 @@
-using CurrencyExchange.DataModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq.Expressions;
-using System.Reflection.Metadata.Ecma335;
 
 namespace CurrencyExchange.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ClientController : ControllerBase
     {
         private readonly ILogger<ClientController> _logger;
@@ -21,8 +18,9 @@ namespace CurrencyExchange.Controllers
             _dataContext = dataContext;
         }
 
-        [HttpPost(Name = "AddNewClient")]
-        public ActionResult AddNewClient(string firstName, string lastName)
+        [HttpPost]
+        [Route("[action]")]
+        public ActionResult AddNew(string firstName, string lastName)
         {
             using (var transaction = _dataContext.Database.BeginTransaction())
             {
@@ -35,19 +33,22 @@ namespace CurrencyExchange.Controllers
                     client = new DataModels.Client(firstName, lastName);
                     _dataContext.Clients.Add(client);
                     _dataContext.SaveChanges();
+                    transaction.Commit();
                     _logger.LogInformation($"Client: {firstName} {lastName} has been created successfully.");
                     return Ok(client.Id);
                 }
                 catch (Exception ex)
                 {
+                    transaction.Rollback();
                     _logger.LogError(ex, "An error occurred while processing your request.");
                     return StatusCode(500, "An error occurred while processing your request.");
                 }
             }
         }
 
-        [HttpGet(Name = "GetNumberOfTradesInLimitValidtityPeriod")]
-        public ActionResult GetNumberOfTradesInLimitValidtityPeriod(int clientId)
+        [HttpGet]
+        [Route("[action]")]
+        public ActionResult GetClientNumberOfTradesInLimitValidtityPeriod(int clientId)
         {
             try
             {
