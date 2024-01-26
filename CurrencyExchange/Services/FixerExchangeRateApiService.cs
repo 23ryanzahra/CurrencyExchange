@@ -16,7 +16,7 @@ namespace CurrencyExchange.Services
         {
             _logger = logger;
             _cache = cache;
-            _baseUrl = new Uri(configuration["FixerApi:BaseUrl"] ?? "");
+            _baseUrl = new Uri(configuration["FixerApi:BaseUrl"] ?? "http://localhost:5208");
             _accessKey = configuration["FixerApi:AccessKey"] ?? "";
         }
 
