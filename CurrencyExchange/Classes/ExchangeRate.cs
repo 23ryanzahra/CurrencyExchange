@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace CurrencyExchange.Classes
+﻿namespace CurrencyExchange.Classes
 {
     public class ExchangeRate
     {

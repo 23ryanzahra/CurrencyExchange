@@ -14,6 +14,6 @@ namespace CurrencyExchange.Classes
         public string ExchangeCurrency { get; set; }
 
         [Required]
-        public double Amount { get;set; }
+        public double Amount { get; set; }
     }
 }

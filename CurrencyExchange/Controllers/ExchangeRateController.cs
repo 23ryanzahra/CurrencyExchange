@@ -1,7 +1,6 @@
 using CurrencyExchange.Classes;
 using CurrencyExchange.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel.DataAnnotations;
 
 namespace CurrencyExchange.Controllers
@@ -22,7 +21,7 @@ namespace CurrencyExchange.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<ExchangeRate>> GetLatest([Required]string exchangeCurrency, [Required]string baseCurrency = "EUR")
+        public async Task<ActionResult<ExchangeRate>> GetLatest([Required] string exchangeCurrency, [Required] string baseCurrency = "EUR")
         {
             try
             {
@@ -45,7 +44,7 @@ namespace CurrencyExchange.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<bool>> IsValidCurrency([Required]string currency)
+        public async Task<ActionResult<bool>> IsValidCurrency([Required] string currency)
         {
             try
             {

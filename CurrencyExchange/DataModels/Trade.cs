@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CurrencyExchange.Classes;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using CurrencyExchange.Classes;
 
 namespace CurrencyExchange.DataModels
 {
@@ -8,7 +8,7 @@ namespace CurrencyExchange.DataModels
     {
         public Trade()
         {
-                
+
         }
 
         public Trade(ExchangeRate exchangeRate, Client client, double amount)

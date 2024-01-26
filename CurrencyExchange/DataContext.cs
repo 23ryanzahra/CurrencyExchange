@@ -1,5 +1,4 @@
-﻿using CurrencyExchange.Classes;
-using CurrencyExchange.DataModels;
+﻿using CurrencyExchange.DataModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace CurrencyExchange

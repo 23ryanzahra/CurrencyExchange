@@ -2,7 +2,6 @@ using CurrencyExchange.Classes;
 using CurrencyExchange.DataModels;
 using CurrencyExchange.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace CurrencyExchange.Controllers
 {
@@ -46,10 +45,10 @@ namespace CurrencyExchange.Controllers
                         x.TimestampUTC >= DateTime.UtcNow.AddMinutes(-1 * ClientTradeLimitValidtityPeriod)
                     );
 
-                    if(countOfTradesInTimeLimitValidityPeriod> ClientTradeLimitCount ) { return BadRequest("Trade limit treshhold has been exceeded."); }
+                    if (countOfTradesInTimeLimitValidityPeriod > ClientTradeLimitCount) { return BadRequest("Trade limit treshhold has been exceeded."); }
 
                     var exchangeRate = await _exchangeRateService.GetLatest(exchangeCurrency: tradeOrder.ExchangeCurrency, baseCurrency: tradeOrder.BaseCurrency);
-                    if(exchangeRate == null) { return BadRequest("Exchange rates are unavailable at this time."); }
+                    if (exchangeRate == null) { return BadRequest("Exchange rates are unavailable at this time."); }
 
                     var trade = new Trade(exchangeRate: exchangeRate, client: client, amount: tradeOrder.Amount);
                     _dataContext.Trades.Add(trade);
