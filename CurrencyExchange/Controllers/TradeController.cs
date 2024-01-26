@@ -2,6 +2,7 @@ using CurrencyExchange.Classes;
 using CurrencyExchange.DataModels;
 using CurrencyExchange.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CurrencyExchange.Controllers
 {
@@ -11,15 +12,17 @@ namespace CurrencyExchange.Controllers
     {
         private readonly ILogger<TradeController> _logger;
         private readonly DataContext _dataContext;
+        private readonly IMemoryCache _cache;
         private readonly FixerExchangeRateApiService _fixerExchangeRateApiService;
         private readonly ExchangeRateService _exchangeRateService;
         private readonly int ClientTradeLimitValidtityPeriod = 60;
         private readonly int ClientTradeLimitCount = 10;
 
-        public TradeController(ILogger<TradeController> logger, DataContext dataContext, FixerExchangeRateApiService fixerExchangeRateApiService, ExchangeRateService exchangeRateService)
+        public TradeController(ILogger<TradeController> logger, DataContext dataContext, IMemoryCache cache, FixerExchangeRateApiService fixerExchangeRateApiService, ExchangeRateService exchangeRateService)
         {
             _logger = logger;
             _dataContext = dataContext;
+            _cache = cache;
             _fixerExchangeRateApiService = fixerExchangeRateApiService;
             _exchangeRateService = exchangeRateService;
         }
@@ -40,12 +43,10 @@ namespace CurrencyExchange.Controllers
                     var client = await _dataContext.Clients.FindAsync(tradeOrder.ClientId);
                     if (client == null) { return BadRequest("Client not found."); }
 
-                    var countOfTradesInTimeLimitValidityPeriod = _dataContext.Trades.Count(x =>
-                        x.ClientId == tradeOrder.ClientId &&
-                        x.TimestampUTC >= DateTime.UtcNow.AddMinutes(-1 * ClientTradeLimitValidtityPeriod)
-                    );
+                    var timestamps = _cache.Get<List<DateTime>>(tradeOrder.ClientId) ?? new List<DateTime>();
+                    timestamps.RemoveAll(x => x < DateTime.UtcNow.AddHours(-1));
 
-                    if (countOfTradesInTimeLimitValidityPeriod > ClientTradeLimitCount) { return BadRequest("Trade limit treshhold has been exceeded."); }
+                    if (timestamps.Count >= ClientTradeLimitCount) { return StatusCode(429, "Rate limit exceeded. You can only make 10 trades per hour."); }
 
                     var exchangeRate = await _exchangeRateService.GetLatest(exchangeCurrency: tradeOrder.ExchangeCurrency, baseCurrency: tradeOrder.BaseCurrency);
                     if (exchangeRate == null) { return BadRequest("Exchange rates are unavailable at this time."); }
@@ -53,8 +54,12 @@ namespace CurrencyExchange.Controllers
                     var trade = new Trade(exchangeRate: exchangeRate, client: client, amount: tradeOrder.Amount);
                     _dataContext.Trades.Add(trade);
                     _dataContext.SaveChanges();
-                    transaction.Commit();
 
+                    timestamps.Add(DateTime.UtcNow);
+
+                    _cache.Set(tradeOrder.ClientId, timestamps, TimeSpan.FromHours(1));
+
+                    transaction.Commit();
                     return Ok(new TradeDTO(trade));
                 }
                 catch (Exception ex)

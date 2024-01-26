@@ -1,5 +1,7 @@
+using CurrencyExchange.Classes;
 using CurrencyExchange.DataModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CurrencyExchange.Controllers
 {
@@ -10,12 +12,14 @@ namespace CurrencyExchange.Controllers
         private readonly ILogger<ClientController> _logger;
         private readonly DataContext _dataContext;
         private readonly int ClientTradeLimitValidtityPeriod = 10;
+        private readonly IMemoryCache _cache;
 
 
-        public ClientController(ILogger<ClientController> logger, DataContext dataContext)
+        public ClientController(ILogger<ClientController> logger, DataContext dataContext, IMemoryCache cache)
         {
             _logger = logger;
             _dataContext = dataContext;
+            _cache = cache;
         }
 
         [HttpPost]
@@ -28,7 +32,11 @@ namespace CurrencyExchange.Controllers
                 {
                     var client = _dataContext.Clients.FirstOrDefault(x => x.FirstName == firstName && x.LastName == lastName);
 
-                    if (client != null) { return BadRequest("No clients with duplicate details are allowed."); }
+                    if (client != null)
+                    {
+                        _logger.LogInformation($"Client: {firstName} {lastName} has already been created.");
+                        return BadRequest("No clients with duplicate details are allowed.");
+                    }
 
                     client = new DataModels.Client(firstName, lastName);
                     _dataContext.Clients.Add(client);
@@ -53,9 +61,13 @@ namespace CurrencyExchange.Controllers
             try
             {
                 var client = _dataContext.Clients.FirstOrDefault(x => x.Id == clientId);
-                if (client == null) { return BadRequest("No data was found."); }
+                if (client == null)
+                {
+                    _logger.LogInformation($"Client with Id: {clientId} not found.");
+                    return BadRequest("No data was found."); 
+                }
 
-                var count = _dataContext.Trades.Count(x => x.ClientId == clientId && x.TimestampUTC >= DateTime.UtcNow.AddMinutes(-1 * ClientTradeLimitValidtityPeriod));
+                var count = _cache.Get<List<DateTime>>(clientId)?.Count() ?? 0;
                 return Ok(count);
             }
             catch (Exception ex)
