@@ -6,6 +6,23 @@ namespace CurrencyExchange.DataModels
 {
     public class Trade
     {
+        public Trade()
+        {
+                
+        }
+
+        public Trade(ExchangeRate exchangeRate, Client client, double amount)
+        {
+            TimestampUTC = DateTime.UtcNow;
+            ClientId = client.Id;
+            Client = client;
+            CurrentRate = exchangeRate.Rate;
+            BaseCurrency = exchangeRate.BaseCurrency;
+            BaseCurrencyAmount = amount;
+            ExchangedCurrency = exchangeRate.ExchangeCurrency;
+            ExchangedCurrencyAmount = amount * CurrentRate;
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -15,7 +32,11 @@ namespace CurrencyExchange.DataModels
 
         public DateTime TimestampUTC { get; set; }
 
+        public string BaseCurrency { get; set; }
+
         public double BaseCurrencyAmount { get; set; }
+
+        public string ExchangedCurrency { get; set; }
 
         public double ExchangedCurrencyAmount { get; set; }
 

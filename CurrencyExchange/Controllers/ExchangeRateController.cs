@@ -2,6 +2,7 @@ using CurrencyExchange.Classes;
 using CurrencyExchange.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.ComponentModel.DataAnnotations;
 
 namespace CurrencyExchange.Controllers
 {
@@ -12,16 +13,16 @@ namespace CurrencyExchange.Controllers
         private readonly ILogger<ExchangeRateController> _logger;
         private readonly FixerExchangeRateApiService _fixerExchangeRateApiService;
         private readonly ExchangeRateService _exchangeRateService;
-        public ExchangeRateController(ILogger<ExchangeRateController> logger, FixerExchangeRateApiService fixerApiService, ExchangeRateService exchangeRateService)
+        public ExchangeRateController(ILogger<ExchangeRateController> logger, FixerExchangeRateApiService fixerExchangeRateApiService, ExchangeRateService exchangeRateService)
         {
             _logger = logger;
-            _fixerExchangeRateApiService = fixerApiService;
+            _fixerExchangeRateApiService = fixerExchangeRateApiService;
             _exchangeRateService = exchangeRateService;
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<ExchangeRate>> GetLatest(string exchangeCurrency, string baseCurrency = "EUR")
+        public async Task<ActionResult<ExchangeRate>> GetLatest([Required]string exchangeCurrency, [Required]string baseCurrency = "EUR")
         {
             try
             {
@@ -44,7 +45,7 @@ namespace CurrencyExchange.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<ActionResult<bool>> IsValidCurrency(string currency)
+        public async Task<ActionResult<bool>> IsValidCurrency([Required]string currency)
         {
             try
             {

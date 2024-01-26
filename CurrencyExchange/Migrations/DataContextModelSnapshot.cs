@@ -51,6 +51,10 @@ namespace CurrencyExchange.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BaseCurrency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("BaseCurrencyAmount")
                         .HasColumnType("float");
 
@@ -59,6 +63,10 @@ namespace CurrencyExchange.Migrations
 
                     b.Property<double>("CurrentRate")
                         .HasColumnType("float");
+
+                    b.Property<string>("ExchangedCurrency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("ExchangedCurrencyAmount")
                         .HasColumnType("float");

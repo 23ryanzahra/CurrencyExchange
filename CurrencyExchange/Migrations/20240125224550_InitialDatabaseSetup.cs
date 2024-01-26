@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CurrencyExchange.Migrations
 {
     /// <inheritdoc />
-    public partial class TheFirstMigration : Migration
+    public partial class InitialDatabaseSetup : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,7 +33,9 @@ namespace CurrencyExchange.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ClientId = table.Column<int>(type: "int", nullable: false),
                     TimestampUTC = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BaseCurrency = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BaseCurrencyAmount = table.Column<double>(type: "float", nullable: false),
+                    ExchangedCurrency = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ExchangedCurrencyAmount = table.Column<double>(type: "float", nullable: false),
                     CurrentRate = table.Column<double>(type: "float", nullable: false)
                 },

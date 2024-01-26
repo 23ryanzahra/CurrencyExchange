@@ -1,3 +1,4 @@
+using CurrencyExchange.DataModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CurrencyExchange.Controllers
@@ -8,7 +9,6 @@ namespace CurrencyExchange.Controllers
     {
         private readonly ILogger<ClientController> _logger;
         private readonly DataContext _dataContext;
-        private readonly int ClientTradeLimit = 10;
         private readonly int ClientTradeLimitValidtityPeriod = 10;
 
 
@@ -20,7 +20,7 @@ namespace CurrencyExchange.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public ActionResult AddNew(string firstName, string lastName)
+        public ActionResult<Client> AddNew(string firstName, string lastName)
         {
             using (var transaction = _dataContext.Database.BeginTransaction())
             {
@@ -35,7 +35,7 @@ namespace CurrencyExchange.Controllers
                     _dataContext.SaveChanges();
                     transaction.Commit();
                     _logger.LogInformation($"Client: {firstName} {lastName} has been created successfully.");
-                    return Ok(client.Id);
+                    return Ok(client);
                 }
                 catch (Exception ex)
                 {
@@ -48,7 +48,7 @@ namespace CurrencyExchange.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public ActionResult GetClientNumberOfTradesInLimitValidtityPeriod(int clientId)
+        public ActionResult<int> GetClientNumberOfTradesInLimitValidtityPeriod(int clientId)
         {
             try
             {
@@ -57,6 +57,21 @@ namespace CurrencyExchange.Controllers
 
                 var count = _dataContext.Trades.Count(x => x.ClientId == clientId && x.TimestampUTC >= DateTime.UtcNow.AddMinutes(-1 * ClientTradeLimitValidtityPeriod));
                 return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing your request.");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public ActionResult<Dictionary<int, string>?> GetAll()
+        {
+            try
+            {
+                return Ok(_dataContext.Clients?.ToDictionary(x => x.Id, x => $"{x.FirstName} {x.LastName}"));
             }
             catch (Exception ex)
             {
