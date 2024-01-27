@@ -1,14 +1,6 @@
 ﻿using CurrencyExchange.Classes;
 using CurrencyExchange.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tests
 {
@@ -29,7 +21,9 @@ namespace Tests
         private readonly string _exchangeCurrency = "GBP";
         private readonly string _baseCurrencyName = "Euro";
         private readonly string _exchangeCurrencyName = "British Pound Sterling";
-        private Dictionary<string, string> _validCurrencies ;
+        private Dictionary<string, string> _validCurrencies;
+        private Dictionary<string, string> _invalidCurrencies = new Dictionary<string, string> { { "INVALID", "InvalidCurrency" } };
+
 
         public TradeControllerTests()
         {
@@ -65,7 +59,7 @@ namespace Tests
         {
             //reinitialize cache and setting new values
             _cache = _helper.CreateMemoryCache();
-            _cache.Set(_symbolsKey, new Dictionary<string, string> { { "MONEY", "TestCurrency" } }, absoluteExpirationRelativeToNow: TimeSpan.FromDays(7));
+            _cache.Set(_symbolsKey, _invalidCurrencies, absoluteExpirationRelativeToNow: TimeSpan.FromDays(7));
 
             //reinitialize _mockFixerExchangeRateApiService  to set new cache values
             _mockFixerExchangeRateApiService = new Mock<FixerExchangeRateApiService>(_mockFixerExchangeRateApiServiceLogger.Object, _mockConfiguration.Object, _cache);

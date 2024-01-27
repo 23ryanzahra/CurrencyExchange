@@ -15,7 +15,6 @@ namespace CurrencyExchange.Controllers
         private readonly IMemoryCache _cache;
         private readonly FixerExchangeRateApiService _fixerExchangeRateApiService;
         private readonly ExchangeRateService _exchangeRateService;
-        private readonly int ClientTradeLimitValidtityPeriod = 60;
         private readonly int ClientTradeLimitCount = 10;
 
         public TradeController(ILogger<TradeController> logger, DataContext dataContext, IMemoryCache cache, FixerExchangeRateApiService fixerExchangeRateApiService, ExchangeRateService exchangeRateService)

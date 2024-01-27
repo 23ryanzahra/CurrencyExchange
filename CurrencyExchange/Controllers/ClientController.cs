@@ -1,4 +1,3 @@
-using CurrencyExchange.Classes;
 using CurrencyExchange.DataModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -11,7 +10,6 @@ namespace CurrencyExchange.Controllers
     {
         private readonly ILogger<ClientController> _logger;
         private readonly DataContext _dataContext;
-        private readonly int ClientTradeLimitValidtityPeriod = 10;
         private readonly IMemoryCache _cache;
 
 
@@ -64,7 +62,7 @@ namespace CurrencyExchange.Controllers
                 if (client == null)
                 {
                     _logger.LogInformation($"Client with Id: {clientId} not found.");
-                    return BadRequest("No data was found."); 
+                    return BadRequest("No data was found.");
                 }
 
                 var count = _cache.Get<List<DateTime>>(clientId)?.Count() ?? 0;

@@ -1,5 +1,3 @@
-using System.Data;
-
 namespace Tests
 {
     public class ClientControllerTests
@@ -63,6 +61,6 @@ namespace Tests
             };
 
             Assert.Equal(expectedResult, returnValue);
-        }      
+        }
     }
 }

@@ -1,10 +1,4 @@
-﻿using CurrencyExchange;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace Tests
+﻿namespace Tests
 {
     public class Helper
     {
