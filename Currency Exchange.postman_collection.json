@@ -1,0 +1,541 @@
+{
+	"info": {
+		"_postman_id": "d71ec429-97d6-46cf-8c9d-ab96f18d8a68",
+		"name": "Currency Exchange",
+		"description": "Currency Exchange Micro-Service task",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21404422"
+	},
+	"item": [
+		{
+			"name": "ExchangeRate",
+			"item": [
+				{
+					"name": "GetLatest",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the required fields\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData).to.have.property('baseCurrency');\r",
+									"    pm.expect(responseData).to.have.property('exchangeCurrency');\r",
+									"    pm.expect(responseData).to.have.property('rate');\r",
+									"    pm.expect(responseData).to.have.property('lastUpdatedUTC');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"LastUpdatedUTC is in a valid date format\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    pm.expect(responseData.lastUpdatedUTC).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$/, \"Date format should be in UTC format\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"LastUpdatedUTC is not more than 30 mins ago\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    const lastUpdatedUTC = new Date(responseData.lastUpdatedUTC);\r",
+									"    const now = new Date();\r",
+									"    const thirtyMinsAgo = new Date(now.getTime() - (30 * 60 * 1000));\r",
+									"    \r",
+									"    pm.expect(lastUpdatedUTC).to.be.above(thirtyMinsAgo);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Rate should be a non-negative number\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    pm.expect(responseData.rate).to.be.a('number');\r",
+									"    pm.expect(responseData.rate).to.be.at.least(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Base and Exchange currency should match the parameters\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    const baseCurrency = pm.request.url.query.get('baseCurrency');\r",
+									"    const exchangeCurrency = pm.request.url.query.get('exchangeCurrency');\r",
+									"\r",
+									"    pm.expect(responseData.baseCurrency).to.equal(baseCurrency);\r",
+									"    pm.expect(responseData.exchangeCurrency).to.equal(exchangeCurrency);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"pm.test(\"BaseCurrency and ExchangeCurrency should not be empty strings\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  pm.expect(responseData).to.be.an('object');\r",
+									"  pm.expect(responseData.baseCurrency).to.be.a('string').and.to.have.lengthOf.at.least(1, \"BaseCurrency should not be empty\");\r",
+									"  pm.expect(responseData.exchangeCurrency).to.be.a('string').and.to.have.lengthOf.at.least(1, \"ExchangeCurrency should not be empty\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Rate should not be null\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData.rate).to.not.be.null;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content-Type header is present in the response\", function () {\r",
+									"    pm.expect(pm.response.headers.has(\"Content-Type\")).to.be.true;\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}ExchangeRate/GetLatest?exchangeCurrency=USD&baseCurrency=EUR",
+							"host": [
+								"{{baseUrl}}ExchangeRate"
+							],
+							"path": [
+								"GetLatest"
+							],
+							"query": [
+								{
+									"key": "exchangeCurrency",
+									"value": "USD",
+									"description": "[Required] Currency 3 Letter code to exchange into"
+								},
+								{
+									"key": "baseCurrency",
+									"value": "EUR",
+									"description": "[Required] Currency 3 Letter code to exchange from \nNote: currently only EUR is acccepted due to the limitation from the basic subscription from Fixer"
+								}
+							]
+						},
+						"description": "This endpoint makes an HTTP GET request to retrieve the latest exchange rate for a given exchange currency in terms of a base currency. The request should include the query parameters 'exchangeCurrency' for the currency to be exchanged and 'baseCurrency' for the base currency.\n\n### Request Parameters\n\n- exchangeCurrency (string): The currency to be exchanged.\n- baseCurrency (string): The base currency.\n    \n\n### Response\n\nUpon a successful execution, the response will have a status code of 200 and a JSON object with the following properties:\n\n- id (number): The ID of the exchange rate.\n- baseCurrency (string): The base currency.\n- exchangeCurrency (string): The currency to be exchanged.\n- rate (number): The exchange rate.\n- lastUpdatedUTC (string): The timestamp of the last update in UTC format."
+					},
+					"response": []
+				},
+				{
+					"name": "GetValidCurrencies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response has the required fields for all currencies\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"\r",
+									"    Object.keys(responseData).forEach(currency => {\r",
+									"        pm.expect(responseData[currency]).to.exist;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"All currencies are non-empty strings\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"\r",
+									"    Object.values(responseData).forEach(currency => {\r",
+									"        pm.expect(currency).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content type is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Each currency code is a valid ISO 4217 code\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    \r",
+									"    Object.keys(responseData).forEach(currency => {\r",
+									"        pm.expect(currency).to.match(/^[A-Z]{3}$/);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Currency codes do not contain special characters or symbols\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    for (const currencyCode in responseData) {\r",
+									"        pm.expect(currencyCode).to.match(/^[A-Z0-9]+$/, \"Currency code should not contain special characters or symbols\");\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response time is within an acceptable range\", function () {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(300);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}ExchangeRate/GetValidCurrencies",
+							"host": [
+								"{{baseUrl}}ExchangeRate"
+							],
+							"path": [
+								"GetValidCurrencies"
+							]
+						},
+						"description": "This HTTP GET request to {{baseUrl}}ExchangeRate/GetValidCurrencies retrieves a list of valid currency codes. The response is a JSON object with each currency code as a key and an empty string as the value. The status of the last execution was 200, and the content type of the response was application/json."
+					},
+					"response": []
+				},
+				{
+					"name": "IsValidCurrency",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response body is a boolean value\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  pm.expect(responseData).to.be.a('boolean');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response body is 'true'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.equal('true');\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}ExchangeRate/IsValidCurrency?currency=EUR",
+							"host": [
+								"{{baseUrl}}ExchangeRate"
+							],
+							"path": [
+								"IsValidCurrency"
+							],
+							"query": [
+								{
+									"key": "currency",
+									"value": "EUR",
+									"description": "[Required] 3 Letter ISO Code for the currency to check"
+								}
+							]
+						},
+						"description": "This endpoint makes an HTTP GET request to validate if the provided currency code is valid. It expects a query parameter \"currency\" with the currency code to be validated.\n\n### Request Parameters\n\n- currency (query parameter) : The currency code to be validated.\n    \n\n### Response\n\nThe endpoint returns a status code of 200 and a JSON response with a boolean value indicating whether the provided currency code is valid (true) or not (false)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Client",
+			"item": [
+				{
+					"name": "AddNew",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"  pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response has the correct content type\", function () {\r",
+									"  pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response body is a valid JSON\", function () {\r",
+									"    pm.expect(pm.response.json()).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response body is not empty\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response includes the expected data for the new client\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"        pm.expect(responseData).to.be.an('object');\r",
+									"        pm.expect(responseData.id).to.exist.and.to.be.a('number');\r",
+									"        pm.expect(responseData.firstName).to.exist.and.to.be.a('string');\r",
+									"        pm.expect(responseData.lastName).to.exist.and.to.be.a('string');\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}Client/AddNew?firstName=Client&lastName=Four",
+							"host": [
+								"{{baseUrl}}Client"
+							],
+							"path": [
+								"AddNew"
+							],
+							"query": [
+								{
+									"key": "firstName",
+									"value": "Client",
+									"description": "[Required] Client's first name"
+								},
+								{
+									"key": "lastName",
+									"value": "Four",
+									"description": "[Required] Client's last name"
+								}
+							]
+						},
+						"description": "This endpoint allows you to add a new client by sending an HTTP POST request to `{{baseUrl}}Client/AddNew` with the `firstName` and `lastName` as query parameters.\n\n### Request Parameters\n\n- `firstName` (string): The first name of the client.\n- `lastName` (string): The last name of the client.\n    \n\n### Response\n\nUpon a successful execution, the server returns a status code of 200 and the content type is `application/json`. The response body contains the details of the newly added client."
+					},
+					"response": []
+				},
+				{
+					"name": "GetClientNumberOfTradesInLimitValidtityPeriod",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response body is a number\", function () {\r",
+									"  pm.expect(pm.response.text()).to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response body is within the valid range\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  pm.expect(responseData).to.be.within(0, Infinity);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Client ID parameter is correctly passed in the request URL\", function () {\r",
+									"    const requestUrl = pm.request.url.toString();\r",
+									"    pm.expect(requestUrl).to.include(\"clientId=1\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}Client/GetClientNumberOfTradesInLimitValidtityPeriod?clientId=1",
+							"host": [
+								"{{baseUrl}}Client"
+							],
+							"path": [
+								"GetClientNumberOfTradesInLimitValidtityPeriod"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "1",
+									"description": "[Required] Client id "
+								}
+							]
+						},
+						"description": "This endpoint makes an HTTP GET request to retrieve the number of trades within the validity period for a specific client. The request should include the client ID as a query parameter. The response will have a status code of 200 and a content type of application/json, with the number of trades within the validity period."
+					},
+					"response": []
+				},
+				{
+					"name": "GetAll",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Verify that the response is not empty\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}Client/GetAll",
+							"host": [
+								"{{baseUrl}}Client"
+							],
+							"path": [
+								"GetAll"
+							]
+						},
+						"description": "\n    \n# Get All Clients\n\nThis endpoint makes an HTTP GET request to retrieve all clients.\n\n## Response\n\nUpon a successful request, the server will respond with a status code of 200 and a JSON object containing the list of clients.\n\nExample response:\n```json\n{\n    \"1\": \"\",\n    \"2\": \"\",\n    \"3\": \"\",\n    \"4\": \"\"\n}\n```\n\n"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Trade",
+			"item": [
+				{
+					"name": "AddNew",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"TimestampUTC is in a valid date format\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  pm.expect(responseData.timestampUTC).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$/, \"TimestampUTC should be in valid date format\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"BaseCurrencyAmount and exchangedCurrencyAmount are non-negative numbers\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.baseCurrencyAmount).to.be.at.least(0);\r",
+									"    pm.expect(responseData.exchangedCurrencyAmount).to.be.at.least(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Current Rate is a non-negative numbers\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.currentRate).to.be.at.least(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"ExchangedCurrencyAmount is BaseCurrencyAmount multiplied by CurrentRate\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.exchangedCurrencyAmount).to.equal(responseData.baseCurrencyAmount*responseData.currentRate);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"clientId\": 1,\r\n  \"baseCurrency\": \"EUR\",\r\n  \"exchangeCurrency\": \"GBP\",\r\n  \"amount\": 1\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}Trade/AddNew",
+							"host": [
+								"{{baseUrl}}Trade"
+							],
+							"path": [
+								"AddNew"
+							]
+						},
+						"description": "This endpoint allows you to add a new trade by making an HTTP POST request to {{baseUrl}}Trade/AddNew. The request should include the client ID, base currency, exchange currency, and the trade amount in the raw request body.\n\n### Request Body\n\n- `clientId` (number): The ID of the client.\n- `baseCurrency` (string): The base currency for the trade.\n- `exchangeCurrency` (string): The currency to be exchanged.\n- `amount` (number): The amount of the trade.\n    \n\nThe response to the request will have a status code of 200 and a content type of application/json. The response body will include the timestamp in UTC, base currency, base currency amount, exchanged currency, exchanged currency amount, and the current exchange rate.\n\n### Response Body\n\n- `timestampUTC` (string): The timestamp of the trade in UTC.\n- `baseCurrency` (string): The base currency of the trade.\n- `baseCurrencyAmount` (number): The amount of the base currency in the trade.\n- `exchangedCurrency` (string): The exchanged currency in the trade.\n- `exchangedCurrencyAmount` (number): The amount of the exchanged currency in the trade.\n- `currentRate` (number): The current exchange rate for the trade."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
